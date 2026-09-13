@@ -1,8 +1,8 @@
 from __future__ import annotations
 
-from typing import Optional
+from typing import Any, Optional
 
-from pydantic import BaseModel, Field
+from pydantic import BaseModel, Field, field_validator
 
 
 class TeamMember(BaseModel):
@@ -39,6 +39,36 @@ class CompanyIntelligence(BaseModel):
         description="0.0-1.0 estimate of how complete/reliable this extraction is, "
         "based on how much relevant content was actually found on the site",
     )
+
+    @field_validator("confidence_score", mode="before")
+    @classmethod
+    def _normalize_confidence_scale(cls, value: Any) -> Any:
+        """Self-heal the most common LLM mistake on this field.
+
+        Ollama's `format=<json schema>` constrains the *shape* of the output
+        (types, required keys) but does not reliably enforce numeric
+        `minimum`/`maximum` bounds during generation — models frequently
+        answer a 0-1 "confidence" question on a 1-10 or 0-100 scale instead
+        (e.g. returning 8 meaning "8/10"). Rather than dropping the entire
+        record over one miscalibrated field, rescale it back into 0.0-1.0.
+        Values already in range, or anything we can't sensibly interpret,
+        pass through unchanged and let the normal ge=0.0/le=1.0 validation
+        catch true errors.
+        """
+        try:
+            number = float(value)
+        except (TypeError, ValueError):
+            return value
+
+        if 0.0 <= number <= 1.0:
+            return number
+        if 1.0 < number <= 10.0:
+            return number / 10.0
+        if 10.0 < number <= 100.0:
+            return number / 100.0
+        if number < 0.0:
+            return 0.0
+        return 1.0  # anything larger is clamped to the max rather than rejected
 
 
 class EnrichmentResult(BaseModel):
