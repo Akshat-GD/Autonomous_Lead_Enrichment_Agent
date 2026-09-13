@@ -28,7 +28,7 @@ def _env_list(name: str, default: list[str]) -> list[str]:
 class Settings:
     # --- LLM (Ollama) ---
     ollama_host: str = os.getenv("OLLAMA_HOST", "http://localhost:11434")
-    ollama_model: str = os.getenv("OLLAMA_MODEL", "llama3.1:8b")
+    ollama_model: str = os.getenv("OLLAMA_MODEL", "llama3.2:3b")
     llm_temperature: float = float(os.getenv("LLM_TEMPERATURE", "0.1"))
     llm_request_timeout: int = int(os.getenv("LLM_TIMEOUT_SECONDS", "180"))
 
