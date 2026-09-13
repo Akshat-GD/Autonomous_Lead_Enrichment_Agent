@@ -19,10 +19,14 @@ _SYSTEM_PROMPT = (
     "Extract ONLY information that is explicitly present in the provided "
     "content. Do not invent names, titles, emails, or URLs. If a field "
     "cannot be found, return an empty list/string as appropriate rather "
-    "than guessing. Set confidence_score based on how much of the requested "
-    "information was actually present in the content (e.g. 0.9+ if team "
-    "names, roles, emails and clear positioning were all found; 0.3-0.5 if "
-    "only generic homepage copy was available)."
+    "than guessing.\n\n"
+    "confidence_score MUST be a decimal number between 0.0 and 1.0 "
+    "(NOT a 1-10 scale, NOT a percentage/0-100 scale). "
+    "For example: use 0.9 to mean 'high confidence', never 9 or 90. "
+    "Set it based on how much of the requested information was actually "
+    "present in the content: 0.9-1.0 if team names, roles, emails and clear "
+    "positioning were all found; 0.5-0.7 if only some of those were found; "
+    "0.2-0.4 if only generic homepage copy was available."
 )
 
 
